@@ -395,15 +395,10 @@ public class Piedpipers
         // non of above cases, just random wandering as rats
         if (randommove) {
         	Random random = new Random();
-        	ox = random.nextDouble()*WALK_SPEED*2-WALK_SPEED;
-        	oy = Math.sqrt(WALK_SPEED-ox*ox);
-        	int tmp = random.nextInt(2);
-        	if (tmp == 0) {
-        		
-        	}
-        	else {
-        		oy = -oy;
-        	}
+        	int theta = random.nextInt(360);
+        	ox = WALK_SPEED*Math.sin(theta*Math.PI/180);
+        	oy = WALK_SPEED*Math.cos(theta*Math.PI/180);
+        	//System.out.printf("(ox, oy)=(%f, %f)\n", ox, oy);
         }
        Point npos = updatePosition(thisRat, ox, oy);
        return npos;
