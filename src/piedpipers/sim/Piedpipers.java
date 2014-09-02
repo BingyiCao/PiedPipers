@@ -51,6 +51,8 @@ public class Piedpipers {
 	static double OPEN_RIGHT = 51.0; // right side of center opening
 
 	static int MAX_TICKS = 10000;
+	
+	static int[] thetas;
 
 	// list files below a certain directory
 	// can filter those having a specific extension constraint
@@ -390,11 +392,17 @@ public class Piedpipers {
 			if (dist < STOP_DIST) {
 				rspeed = 0;
 				randommove = false;
+				Random random = new Random();
+				int theta = random.nextInt(360);
+				thetas[ratId] = theta;
 
 			} else if (dist < WALK_DIST) {
 				// between 2-10 meters of a music piper, move towards the piper
 				rspeed = WALK_SPEED;
 				randommove = false;
+				Random random = new Random();
+				int theta = random.nextInt(360);
+				thetas[ratId] = theta;
 			}
 			// if (dist<10) {
 			ox = (closestPiper.x - thisRat.x) / dist * rspeed;
@@ -403,20 +411,20 @@ public class Piedpipers {
 		}
 		// non of above cases, just random wandering as rats
 		if (randommove) {
-			Random random = new Random();
-			int theta = random.nextInt(360);
-			ox = WALK_SPEED * Math.sin(theta * Math.PI / 180);
-			oy = WALK_SPEED * Math.cos(theta * Math.PI / 180);
+			//Random random = new Random();
+			//int theta = random.nextInt(360);
+			ox = WALK_SPEED * Math.sin(thetas[ratId] * Math.PI / 180);
+			oy = WALK_SPEED * Math.cos(thetas[ratId] * Math.PI / 180);
 			// System.out.printf("(ox, oy)=(%f, %f)\n", ox, oy);
 		}
-		Point npos = updatePosition(thisRat, ox, oy);
+		Point npos = updatePosition(thisRat, ox, oy, ratId);
 		return npos;
 	}
 
 	// update the current point according to the offsets
-	Point updatePosition(Point now, double ox, double oy) {
+	Point updatePosition(Point now, double ox, double oy, int rat) {
 		double nx = now.x + ox, ny = now.y + oy;
-
+		int id_rat = rat;
 		// hit the left fence
 		if (nx < 0) {
 			// System.err.println("RAT HITS THE LEFT FENCE!!!");
@@ -427,7 +435,10 @@ public class Piedpipers {
 			// how much we still need to move
 			// BUT in opposite direction
 			double ox2 = -(ox - moved);
-			return updatePosition(temp, ox2, oy);
+			Random random = new Random();
+			int theta = random.nextInt(360);
+			thetas[rat] = theta;
+			return updatePosition(temp, ox2, oy, id_rat);
 		}
 		// hit the right fence
 		if (nx > dimension) {
@@ -436,7 +447,10 @@ public class Piedpipers {
 			Point temp = new Point(dimension, now.y);
 			double moved = (dimension - now.x);
 			double ox2 = -(ox - moved);
-			return updatePosition(temp, ox2, oy);
+			Random random = new Random();
+			int theta = random.nextInt(360);
+			thetas[rat] = theta;
+			return updatePosition(temp, ox2, oy, id_rat);
 		}
 		// hit the up fence
 		if (ny < 0) {
@@ -445,7 +459,10 @@ public class Piedpipers {
 			Point temp = new Point(now.x, 0);
 			double moved = 0 - now.y;
 			double oy2 = -(oy - moved);
-			return updatePosition(temp, ox, oy2);
+			Random random = new Random();
+			int theta = random.nextInt(360);
+			thetas[rat] = theta;
+			return updatePosition(temp, ox, oy2, id_rat);
 		}
 		// hit the bottom fence
 		if (ny > dimension) {
@@ -453,7 +470,10 @@ public class Piedpipers {
 			Point temp = new Point(now.x, dimension);
 			double moved = (dimension - now.y);
 			double oy2 = -(oy - moved);
-			return updatePosition(temp, ox, oy2);
+			Random random = new Random();
+			int theta = random.nextInt(360);
+			thetas[rat] = theta;
+			return updatePosition(temp, ox, oy2, id_rat);
 		}
 		assert nx >= 0 && nx <= dimension;
 		assert ny >= 0 && ny <= dimension;
@@ -466,7 +486,10 @@ public class Piedpipers {
 			Point temp = new Point(50, now.y);
 			double moved = (50 - now.x);
 			double ox2 = -(ox - moved);
-			return updatePosition(temp, ox2, oy);
+			Random random = new Random();
+			int theta = random.nextInt(360);
+			thetas[rat] = theta;
+			return updatePosition(temp, ox2, oy, id_rat);
 		}
 		// otherwise, we are good
 		return new Point(nx, ny);
@@ -613,6 +636,7 @@ public class Piedpipers {
 	void init() {
 		// initialize rats
 		rats = new Point[nrats];
+		thetas = new int[nrats];
 		for (int s = 0; s < nrats; ++s)
 			rats[s] = randomPosition(1);
 
@@ -626,6 +650,11 @@ public class Piedpipers {
 
 		for (int d = 0; d < npipers; ++d) {
 			players[d].init();
+		}
+		for (int i=0; i< nrats; i++) {
+			Random random = new Random();
+			int theta = random.nextInt(360);
+			thetas[i]=theta;
 		}
 	}
 
@@ -683,7 +712,7 @@ public class Piedpipers {
 
 	// game config
 	int npipers;
-	int nrats;
+	static int nrats;
 	// int nblacks;
 	// boolean mode;
 
