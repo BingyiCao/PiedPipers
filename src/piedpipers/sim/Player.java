@@ -2,7 +2,8 @@ package piedpipers.sim;
 
 public abstract class Player {
 	public int id; // id of the piper, 1,2,3...npiper
-
+	public int dimension;
+	
 	public boolean music;
 
 	public Player() {

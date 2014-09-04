@@ -47,11 +47,12 @@ public class Piedpipers {
 	static double MUSICPIPER_SPEED = 0.1; // 1m/s, walking speed for music piper
 	static double PIPER_SPEED = 0.5; // 5m/s, walking speed for no music piper
 
-	static double OPEN_LEFT = 49.0; // left side of center opening
-	static double OPEN_RIGHT = 51.0; // right side of center opening
+	static double OPEN_LEFT; // left side of center opening
+	static double OPEN_RIGHT; // right side of center opening
 
 	static int MAX_TICKS = 10000;
-	
+	static int seed;
+	static Random random;
 	static int[] thetas;
 
 	// list files below a certain directory
@@ -147,11 +148,12 @@ public class Piedpipers {
 
 	}
 
-	static Player[] loadPlayers(String group, int npipers) {
+	static Player[] loadPlayers(String group, int npipers, int d) {
 		Player[] players = new Player[npipers];
 		for (int i = 0; i < npipers; ++i) {
 			Player p = loadPlayer(group);
 			p.id = i; // set the piper id
+			p.dimension = d;
 			players[i] = p;
 		}
 		return players;
@@ -161,6 +163,7 @@ public class Piedpipers {
 	static Point randomPosition(int side) {
 		Point point = new Point();
 		// generate [0-50)
+		//random.setSeed(20);//seed
 		point.x = random.nextDouble() * dimension * 0.5;
 		// generate [50-100)
 		if (side == 1)
@@ -400,7 +403,7 @@ public class Piedpipers {
 				// between 2-10 meters of a music piper, move towards the piper
 				rspeed = WALK_SPEED;
 				randommove = false;
-				Random random = new Random();
+				//Random random = new Random();
 				int theta = random.nextInt(360);
 				thetas[ratId] = theta;
 			}
@@ -435,7 +438,8 @@ public class Piedpipers {
 			// how much we still need to move
 			// BUT in opposite direction
 			double ox2 = -(ox - moved);
-			Random random = new Random();
+			//Random random = new Random();
+			
 			int theta = random.nextInt(360);
 			thetas[rat] = theta;
 			return updatePosition(temp, ox2, oy, id_rat);
@@ -447,7 +451,8 @@ public class Piedpipers {
 			Point temp = new Point(dimension, now.y);
 			double moved = (dimension - now.x);
 			double ox2 = -(ox - moved);
-			Random random = new Random();
+			//Random random = new Random();
+			
 			int theta = random.nextInt(360);
 			thetas[rat] = theta;
 			return updatePosition(temp, ox2, oy, id_rat);
@@ -459,7 +464,8 @@ public class Piedpipers {
 			Point temp = new Point(now.x, 0);
 			double moved = 0 - now.y;
 			double oy2 = -(oy - moved);
-			Random random = new Random();
+			//Random random = new Random();
+		
 			int theta = random.nextInt(360);
 			thetas[rat] = theta;
 			return updatePosition(temp, ox, oy2, id_rat);
@@ -470,7 +476,7 @@ public class Piedpipers {
 			Point temp = new Point(now.x, dimension);
 			double moved = (dimension - now.y);
 			double oy2 = -(oy - moved);
-			Random random = new Random();
+			//Random random = new Random();
 			int theta = random.nextInt(360);
 			thetas[rat] = theta;
 			return updatePosition(temp, ox, oy2, id_rat);
@@ -483,10 +489,10 @@ public class Piedpipers {
 			// System.err.println(nx + " " + ny);
 			// System.err.println(ox + " " + oy);
 			// move the point to the fence
-			Point temp = new Point(50, now.y);
-			double moved = (50 - now.x);
+			Point temp = new Point(dimension/2, now.y);
+			double moved = (dimension/2 - now.x);
 			double ox2 = -(ox - moved);
-			Random random = new Random();
+			//Random random = new Random();
 			int theta = random.nextInt(360);
 			thetas[rat] = theta;
 			return updatePosition(temp, ox2, oy, id_rat);
@@ -523,15 +529,17 @@ public class Piedpipers {
 		// compute the intersection with (50, y3)
 		// (y3-y1)/(50-x1) = (y2-y1)/(x2-x1)
 
-		double y3 = (y2 - y1) / (x2 - x1) * (50 - x1) + y1;
+		double y3 = (y2 - y1) / (x2 - x1) * (dimension/2 - x1) + y1;
 
 		assert y3 >= 0 && y3 <= dimension;
 
 		// pass the openning?
-		if (y3 >= OPEN_LEFT && y3 <= OPEN_RIGHT)
+		if (y3 >= OPEN_LEFT && y3 <= OPEN_RIGHT) 
 			return false;
-		else
+		else {
+			System.out.printf("hit the medium fence");
 			return true;
+		}
 	}
 
 	void moveRats() {
@@ -652,7 +660,8 @@ public class Piedpipers {
 			players[d].init();
 		}
 		for (int i=0; i< nrats; i++) {
-			Random random = new Random();
+			//Random random = new Random();
+			//random.setSeed(20);//set seed
 			int theta = random.nextInt(360);
 			thetas[i]=theta;
 		}
@@ -686,9 +695,16 @@ public class Piedpipers {
 			nrats = Integer.parseInt(args[2]);
 		if (args.length > 3)
 			gui = Boolean.parseBoolean(args[3]);
-
+		if (args.length > 4)
+			seed = Integer.parseInt(args[4]);
+		if (args.length >5)
+			dimension = Integer.parseInt(args[5]);
+		random = new Random(seed);
+		OPEN_LEFT = dimension/2-1;
+		OPEN_RIGHT = dimension/2+1;
+		System.out.printf("the open left and open right are %f and %f", OPEN_LEFT, OPEN_RIGHT);
 		// load players
-		Player[] players = loadPlayers(group, npipers);
+		Player[] players = loadPlayers(group, npipers, dimension);
 
 		// create game
 		Piedpipers game = new Piedpipers(players, nrats);
@@ -718,6 +734,5 @@ public class Piedpipers {
 
 	int tick = 0;
 
-	static double dimension = 100.0; // dimension of the map
-	static Random random = new Random();
+	static int dimension; // dimension of the map
 }

@@ -6,10 +6,10 @@ import piedpipers.sim.Point;
 
 public class Player extends piedpipers.sim.Player {
 	static int npipers;
-	static double dimension = 100.00;
+	
 	static double pspeed = 0.49;
 	static double mpspeed = 0.09;
-	static Point gate = new Point(50, 50);
+	
 	static Point target = new Point();
 	static int[] thetas;
 	static boolean finishround = true;
@@ -36,6 +36,7 @@ public class Player extends piedpipers.sim.Player {
 			Point[] rats) { // positions of the sheeps
 		npipers = pipers.length;
 		System.out.println(initi);
+		Point gate = new Point(dimension/2, dimension/2);
 		if (!initi) {
 			this.init();initi = true;
 		}
