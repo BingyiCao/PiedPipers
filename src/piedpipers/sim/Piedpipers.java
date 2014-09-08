@@ -200,6 +200,7 @@ public class Piedpipers {
 		JButton next10;
 		JButton next50;
 		JLabel label;
+		JLabel label0;
 
 		public PiedPipersUI() {
 			setPreferredSize(new Dimension(FRAME_SIZE, FRAME_SIZE));
@@ -210,6 +211,8 @@ public class Piedpipers {
 		}
 
 		private boolean performOnce() {
+			label0.setText("Tick "+tick);
+			label0.setVisible(true);
 			if (tick > MAX_TICKS) {
 				label.setText("Time out!!!");
 				label.setVisible(true);
@@ -268,6 +271,11 @@ public class Piedpipers {
 			label.setVisible(false);
 			label.setBounds(0, 60, 200, 50);
 			label.setFont(new Font("Arial", Font.PLAIN, 15));
+			
+			label0 = new JLabel();
+			label0.setVisible(false);
+			label0.setBounds(500, 60, 200, 50);
+			label0.setFont(new Font("Arial", Font.PLAIN, 15));
 
 			field.setBounds(100, 100, FIELD_SIZE + 50, FIELD_SIZE + 50);
 
@@ -275,6 +283,7 @@ public class Piedpipers {
 			this.add(next10);
 			this.add(next50);
 			this.add(label);
+			this.add(label0);
 			this.add(field);
 
 			f.add(this);
