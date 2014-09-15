@@ -444,7 +444,7 @@ public class Piedpipers {
 			if (dist < STOP_DIST) {
 				rspeed = 0;
 				randommove = false;
-				Random random = new Random();
+				//Random random = new Random();
 				int theta = random.nextInt(360);
 				thetas[ratId] = theta;
 
@@ -477,6 +477,7 @@ public class Piedpipers {
 	Point updatePosition(Point now, double ox, double oy, int rat) {
 		double nx = now.x + ox, ny = now.y + oy;
 		int id_rat = rat;
+		
 		// hit the left fence
 		if (nx < 0) {
 			// System.err.println("RAT HITS THE LEFT FENCE!!!");
@@ -489,7 +490,8 @@ public class Piedpipers {
 			double ox2 = -(ox - moved);
 			//Random random = new Random();
 			
-			int theta = random.nextInt(360);
+			//int theta = random.nextInt(360);
+			int theta = -thetas[rat];
 			thetas[rat] = theta;
 			return updatePosition(temp, ox2, oy, id_rat);
 		}
@@ -502,7 +504,7 @@ public class Piedpipers {
 			double ox2 = -(ox - moved);
 			//Random random = new Random();
 			
-			int theta = random.nextInt(360);
+			int theta = -thetas[rat];
 			thetas[rat] = theta;
 			return updatePosition(temp, ox2, oy, id_rat);
 		}
@@ -515,7 +517,7 @@ public class Piedpipers {
 			double oy2 = -(oy - moved);
 			//Random random = new Random();
 		
-			int theta = random.nextInt(360);
+			int theta = 180-thetas[rat];
 			thetas[rat] = theta;
 			return updatePosition(temp, ox, oy2, id_rat);
 		}
@@ -526,7 +528,7 @@ public class Piedpipers {
 			double moved = (dimension - now.y);
 			double oy2 = -(oy - moved);
 			//Random random = new Random();
-			int theta = random.nextInt(360);
+			int theta = 180-thetas[rat];
 			thetas[rat] = theta;
 			return updatePosition(temp, ox, oy2, id_rat);
 		}
@@ -542,7 +544,7 @@ public class Piedpipers {
 			double moved = (dimension/2 - now.x);
 			double ox2 = -(ox - moved);
 			//Random random = new Random();
-			int theta = random.nextInt(360);
+			int theta = -thetas[rat];
 			thetas[rat] = theta;
 			return updatePosition(temp, ox2, oy, id_rat);
 		}
