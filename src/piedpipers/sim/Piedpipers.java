@@ -50,10 +50,10 @@ public class Piedpipers {
 	static double OPEN_LEFT; // left side of center opening
 	static double OPEN_RIGHT; // right side of center opening
 
-	static int MAX_TICKS = 10000;
+	static int MAX_TICKS = 100000;
 	static int seed;
 	static Random random;
-	static int[] thetas;
+	public static int[] thetas;
 
 	// list files below a certain directory
 	// can filter those having a specific extension constraint
@@ -194,13 +194,17 @@ public class Piedpipers {
 	class PiedPipersUI extends JPanel implements ActionListener {
 		int FRAME_SIZE = 800;
 		int FIELD_SIZE = 600;
+		boolean playing = false;
 		JFrame f;
 		FieldPanel field;
 		JButton next;
 		JButton next10;
+		JButton next30;
 		JButton next50;
+		JButton next100;
+		JButton playbtn;
 		JLabel label;
-		JLabel label0;
+		javax.swing.Timer timer;
 
 		public PiedPipersUI() {
 			setPreferredSize(new Dimension(FRAME_SIZE, FRAME_SIZE));
@@ -211,18 +215,17 @@ public class Piedpipers {
 		}
 
 		private boolean performOnce() {
-			label0.setText("Tick "+tick);
-			label0.setVisible(true);
+            label.setText("Ticks: "+tick);
 			if (tick > MAX_TICKS) {
-				label.setText("Time out!!!");
-				label.setVisible(true);
+				label.setText("Time out!!! The player lured " + countCapturedRats() + " to their doom!");
+				
 				// print error message
 				System.err.println("[ERROR] The player is time out!");
+				System.err.println("The player managed to lure " + countCapturedRats() + " to their doom!");
 				next.setEnabled(false);
 				return false;
 			} else if (endOfGame()) {
 				label.setText("Finishes in " + tick + " ticks!");
-				label.setVisible(true);
 				// print success message
 				System.err.println("[SUCCESS] The player achieves the goal in "
 						+ tick + " ticks.");
@@ -237,12 +240,30 @@ public class Piedpipers {
 		public void actionPerformed(ActionEvent e) {
 			int steps = 0;
 
-			if (e.getSource() == next)
+			if (e.getSource() == timer)
+				steps = 10;
+			else if (e.getSource() == next)
 				steps = 1;
 			else if (e.getSource() == next10)
 				steps = 10;
+			else if (e.getSource() == next30)
+				steps = 30;
 			else if (e.getSource() == next50)
 				steps = 50;
+			else if (e.getSource() == next100)
+				steps = 100;
+			else if (e.getSource() == playbtn) {
+				if (playing) {
+					playbtn.setText("Play");
+					playing = false;
+					timer.stop();
+				} else {
+					playbtn.setText("Stop");
+					playing = true;
+					timer = new javax.swing.Timer(10, this);
+					timer.start();
+				}
+			}
 
 			for (int i = 0; i < steps; ++i) {
 				if (!performOnce())
@@ -263,27 +284,33 @@ public class Piedpipers {
 			next10 = new JButton("Next10");
 			next10.addActionListener(this);
 			next10.setBounds(100, 0, 100, 50);
+			next30 = new JButton("Next30");
+			next30.addActionListener(this);
+			next30.setBounds(200, 0, 100, 50);
 			next50 = new JButton("Next50");
 			next50.addActionListener(this);
-			next50.setBounds(200, 0, 100, 50);
+			next50.setBounds(300, 0, 100, 50);
+			next100 = new JButton("Next100");
+			next100.addActionListener(this);
+			next100.setBounds(400, 0, 100, 50);
+			playbtn = new JButton("Play");
+			playbtn.addActionListener(this);
+			playbtn.setBounds(500, 0, 100, 50);
 
 			label = new JLabel();
-			label.setVisible(false);
-			label.setBounds(0, 60, 200, 50);
+			label.setBounds(0, 60, 500, 50);
 			label.setFont(new Font("Arial", Font.PLAIN, 15));
-			
-			label0 = new JLabel();
-			label0.setVisible(false);
-			label0.setBounds(500, 60, 200, 50);
-			label0.setFont(new Font("Arial", Font.PLAIN, 15));
+			label.setText("");
 
 			field.setBounds(100, 100, FIELD_SIZE + 50, FIELD_SIZE + 50);
 
 			this.add(next);
 			this.add(next10);
+			this.add(next30);
 			this.add(next50);
+			this.add(next100);
+			this.add(playbtn);
 			this.add(label);
-			this.add(label0);
 			this.add(field);
 
 			f.add(this);
@@ -337,19 +364,32 @@ public class Piedpipers {
 		}
 
 		public void drawPoint(Graphics2D g2, Point p, PType type) {
-			if (type == PType.PTYPE_MUSICPIPERS)
+			if (type == PType.PTYPE_MUSICPIPERS) {
 				g2.setPaint(Color.BLUE);
-			else if (type == PType.PTYPE_PIPERS)
+				Ellipse2D e = new Ellipse2D.Double(p.x * s - PSIZE  + ox, p.y
+						* s - PSIZE  + oy, PSIZE*2, PSIZE*2);
+				g2.setStroke(stroke);
+				g2.draw(e);
+				g2.fill(e);
+			}
+			else if (type == PType.PTYPE_PIPERS) {
 				g2.setPaint(Color.ORANGE);
-			else
-				g2.setPaint(Color.GREEN);
+				Ellipse2D e = new Ellipse2D.Double(p.x * s - PSIZE  + ox, p.y
+						* s - PSIZE  + oy, PSIZE*2, PSIZE*2);
+				g2.setStroke(stroke);
+				g2.draw(e);
+				g2.fill(e);
+			}
+			else {
+				g2.setPaint(Color.BLACK);
 
 			Ellipse2D e = new Ellipse2D.Double(p.x * s - PSIZE / 2 + ox, p.y
 					* s - PSIZE / 2 + oy, PSIZE, PSIZE);
 			g2.setStroke(stroke);
 			g2.draw(e);
 			g2.fill(e);
-		}
+			}
+			}
 
 		public void drawPipers(Graphics2D g2) {
 			for (int i = 0; i < npipers; ++i) {
@@ -619,7 +659,7 @@ public class Piedpipers {
 
 			// validate player move
 			if (!validateMove(pipers[d], next[d], d)) {
-				System.err.println("[ERROR] Invalid move, let the dog stay.");
+				System.err.println("[ERROR] Invalid move, let the piper stay.");
 				// for testing purpose
 				// let's make the dog stay
 				next[d] = pipers[d];
@@ -650,6 +690,15 @@ public class Piedpipers {
 		}
 	}
 
+	int countCapturedRats(){
+		int capturedRats = 0;
+		for (int i = 0; i < nrats; ++i) {
+			if (getSide(rats[i]) != 1)
+				capturedRats++;
+		}
+		return capturedRats;
+	}
+	
 	void init() {
 		// initialize rats
 		rats = new Point[nrats];
